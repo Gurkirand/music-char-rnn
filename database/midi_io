@@ -45,6 +45,7 @@ def setupParser():
     parser = OptionParser()
     parser.add_option("--input", dest="filepath", help="File to be encoded or decoded. Must be .mid or .txt", metavar="FILEPATH")
     parser.add_option("--output_dir", dest="writepath", help="Directory path for writting encoded or decoded file.", metavar="WRITEPATH")
+    parser.add_option("--track", dest="track", help="Track to be parsed from midi file.", metavar="TRACK_NUMBER")
     return parser
 
 def parseArgs():
@@ -52,7 +53,8 @@ def parseArgs():
     (options, args) = parser.parse_args()
     filepath = options.filepath
     writepath = options.writepath
-    return filepath, writepath
+    track = options.track
+    return filepath, writepath, track
 
 def checkArgs(filepath, writepath):
     if (not filepath or not isFile(filepath)):
@@ -63,22 +65,28 @@ def checkArgs(filepath, writepath):
         return False
     return True
 
-def encode(filepath, writepath):
-    midi_encoder.encodeMidiToText(filepath, writepath)
+
+def encode(filepath, writepath, track):
+    try:
+        trackNum = int(track)
+        midi_encoder.encodeMidiToText(filepath, writepath, track)
+    except:
+        midi_encoder.encodeMidiToText(filepath, writepath)
+        
     
 def decode(filepath, writepath):
     midi_decoder.decodeTextToMidi(filepath, writepath)
     
 
 def main():
-    filepath, writepath = parseArgs()
+    filepath, writepath, track = parseArgs()
     if (not checkArgs(filepath, writepath)):
         return
     
     filename = getFilename(filepath)
     if (isMidi(filepath)):
         writepath += filename + '.txt'
-        encode(filepath, writepath)
+        encode(filepath, writepath, track)
     elif (isText(filepath)):
         writepath += filename + '.mid'
         decode(filepath, writepath)

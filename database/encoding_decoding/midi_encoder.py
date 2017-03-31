@@ -3,7 +3,7 @@
 import sys
 import os
 import pretty_midi
-from encoder_decoder_lib import NEW_TICK, REST, DEFAULT_RESOLUTION
+from encoder_decoder_lib import NEW_TICK, REST, DEFAULT_RESOLUTION, DEFAULT_TRACK
 
 class Interval:
     def __init__(self, start, end):
@@ -89,7 +89,7 @@ def ticksToText(ticks):
     return songString
         
     
-def encodeMidiToText(filepath, writepath):
+def encodeMidiToText(filepath, writepath, track=DEFAULT_TRACK):
     filepath = os.path.abspath(filepath)
     writepath = os.path.abspath(writepath)
     midi_data = pretty_midi.PrettyMIDI(filepath)
@@ -104,7 +104,7 @@ def encodeMidiToText(filepath, writepath):
     quarter_time = 60.0 / qpm
     tickrate = quarter_time / resolution
     
-    instrument = midi_data.instruments[0]
+    instrument = midi_data.instruments[track]
     
     intervals = groupNotesByInterval(instrument)
     ticks = intervalsToTicks(intervals, tickrate)

@@ -1,0 +1,90 @@
+#!/usr/bin/env python
+
+import sys
+import os
+from optparse import OptionParser
+import pretty_midi
+from encoding_decoding import *
+
+def getFile(filepath):
+    return os.path.basename(filepath)
+
+def getFilename(filepath):
+    return os.path.splitext(getFile(filepath))[0]
+
+def getExtension(filepath):
+    return os.path.splitext(getFile(filepath))[1]
+
+def isMidi(filepath):
+    if (getExtension(filepath) == ".mid"):
+        return True;
+    return False;
+
+def isText(filepath):
+    if (getExtension(filepath) == ".txt"):
+        return True;
+    return False;
+
+def isFile(filepath):
+    return os.path.isfile(filepath)
+
+def isDir(dirpath):
+    return os.path.isdir(dirpath)
+    
+
+
+def parseArgsForFilename(args):
+    for argument in args:
+        if (argument[0:2] == "-h"):
+            System.out.println("Usage python midi_to_text.py PATH_TO_MIDI_FILE")
+        elif (checkIfMidi(argument) and checkIfFile(argument)):
+            return argument
+    return None
+
+def setupParser():
+    parser = OptionParser()
+    parser.add_option("--input", dest="filepath", help="File to be encoded or decoded. Must be .mid or .txt", metavar="FILEPATH")
+    parser.add_option("--output_dir", dest="writepath", help="Directory path for writting encoded or decoded file.", metavar="WRITEPATH")
+    return parser
+
+def parseArgs():
+    parser = setupParser()
+    (options, args) = parser.parse_args()
+    filepath = options.filepath
+    writepath = options.writepath
+    return filepath, writepath
+
+def checkArgs(filepath, writepath):
+    if (not filepath or not isFile(filepath)):
+        print "Invalid file path. Must be a file."
+        return False
+    if (not writepath or not isDir(writepath)):
+        print "Invalid write path. Must be a directory."
+        return False
+    return True
+
+def encode(filepath, writepath):
+    midi_encoder.encodeMidiToText(filepath, writepath)
+    
+def decode(filepath, writepath):
+    midi_decoder.decodeTextToMidi(filepath, writepath)
+    
+
+def main():
+    filepath, writepath = parseArgs()
+    if (not checkArgs(filepath, writepath)):
+        return
+    
+    filename = getFilename(filepath)
+    if (isMidi(filepath)):
+        writepath += filename + '.txt'
+        encode(filepath, writepath)
+    elif (isText(filepath)):
+        writepath += filename + '.mid'
+        decode(filepath, writepath)
+    else:
+        print "Invalid inputs. Enter .txt or .mid for input."
+
+
+if __name__ == "__main__":
+    main();
